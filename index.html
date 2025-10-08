@@ -98,9 +98,8 @@
                                 <td><input type="text" class="form-control" id="newName" placeholder="您的姓名" required></td>
                                 <td><input type="text" class="form-control" id="newIntroducer" placeholder="介紹人 (可選)"></td>
                                 <td class="text-center">
-                                    <div class="form-check form-switch d-flex justify-content-center">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="newPaidSwitch" title="是否已繳費">
-                                    </div>
+                                    <!-- 【修改】: 將開關改為固定的文字標籤 -->
+                                    <span class="badge bg-secondary paid-status-badge">尚未繳費</span>
                                 </td>
                                 <td><input type="text" class="form-control" id="newNote" placeholder="備註 (可選)"></td>
                             </tr>
@@ -137,7 +136,7 @@
                 newName: document.getElementById('newName'),
                 newIntroducer: document.getElementById('newIntroducer'),
                 newNote: document.getElementById('newNote'),
-                newPaidSwitch: document.getElementById('newPaidSwitch'),
+                // 【修改】: newPaidSwitch 已被移除，故從此處刪除
                 submitBtn: document.getElementById('submitBtn'),
                 editBtn: document.getElementById('editBtn'),
                 saveBtn: document.getElementById('saveBtn'),
@@ -228,7 +227,7 @@
                             sheet_title: sheetTitle,
                             name: name,
                             introducer: elements.newIntroducer.value.trim(),
-                            paid: elements.newPaidSwitch.checked ? '已繳費' : '尚未繳費',
+                            paid: '尚未繳費', // 【修改】: 固定傳送 '尚未繳費'
                             note: elements.newNote.value.trim()
                         }),
                     });
@@ -239,7 +238,7 @@
                     elements.newName.value = '';
                     elements.newIntroducer.value = '';
                     elements.newNote.value = '';
-                    elements.newPaidSwitch.checked = false;
+                    // 【修改】: 移除對 newPaidSwitch 的操作
                     fetchData();
                 } catch (error) {
                     alert(`送出失敗：${error.message}`);
