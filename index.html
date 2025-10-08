@@ -218,11 +218,10 @@
                 } else {
                     participants.forEach((p, index) => {
                         const introducerText = p.introducer ? `(${p.introducer})` : '';
-                        // 【修改】: 備註格式變更為 <>
                         const noteText = p.note ? ` <${p.note}>` : '';
-                        // 【修改】: 繳費格式變更為 ✅，未繳費則不顯示
                         const paidText = p.paid === '已繳費' ? ' ✅' : '';
-                        summary += `${index + 1}. ${p.name}${introducerText}${noteText}${paidText}\n`;
+                        // 【修改】: 調整純文字清單中「繳費」和「備註」的順序
+                        summary += `${index + 1}. ${p.name}${introducerText}${paidText}${noteText}\n`;
                     });
                 }
                 elements.summaryText.value = summary;
