@@ -218,9 +218,10 @@
                 } else {
                     participants.forEach((p, index) => {
                         const introducerText = p.introducer ? `(${p.introducer})` : '';
-                        const noteText = p.note ? ` [備註: ${p.note}]` : '';
-                        // 【修改】: 將 (✓已繳費) 改為 ✓ 已繳費，並加上空格
-                        const paidText = p.paid === '已繳費' ? ' ✓已繳費' : '';
+                        // 【修改】: 備註格式變更為 <>
+                        const noteText = p.note ? ` <${p.note}>` : '';
+                        // 【修改】: 繳費格式變更為 ✅，未繳費則不顯示
+                        const paidText = p.paid === '已繳費' ? ' ✅' : '';
                         summary += `${index + 1}. ${p.name}${introducerText}${noteText}${paidText}\n`;
                     });
                 }
