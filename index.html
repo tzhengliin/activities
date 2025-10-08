@@ -102,7 +102,7 @@
                 </div>
             </section>
 
-            <!-- 【新增】: 純文字清單區塊 -->
+            <!-- 純文字清單區塊 -->
             <section id="summarySection" class="mt-5">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h2>純文字接龍清單 (方便複製)</h2>
@@ -142,7 +142,6 @@
                 cancelBtn: document.getElementById('cancelBtn'),
                 addFooter: document.getElementById('addParticipantFooter'),
                 submitWrapper: document.getElementById('submitBtnWrapper'),
-                // 【新增】
                 summaryText: document.getElementById('summaryText'),
                 copyBtn: document.getElementById('copyBtn')
             };
@@ -173,7 +172,7 @@
                 elements.title.textContent = description.split('\n')[0].trim();
                 elements.description.textContent = description;
                 renderTable(participants);
-                renderSummaryText(description, participants); // 【新增】: 呼叫產生純文字的函式
+                renderSummaryText(description, participants);
             }
 
             function renderTable(participants) {
@@ -209,7 +208,6 @@
                 });
             }
 
-            // 【新增】: 產生純文字清單的函式
             function renderSummaryText(description, participants) {
                 let summary = description + '\n';
                 summary += '--------------------\n';
@@ -221,7 +219,8 @@
                     participants.forEach((p, index) => {
                         const introducerText = p.introducer ? `(${p.introducer})` : '';
                         const noteText = p.note ? ` [備註: ${p.note}]` : '';
-                        const paidText = p.paid === '已繳費' ? ' (✓已繳費)' : '';
+                        // 【修改】: 將 (✓已繳費) 改為 ✓ 已繳費，並加上空格
+                        const paidText = p.paid === '已繳費' ? ' ✓已繳費' : '';
                         summary += `${index + 1}. ${p.name}${introducerText}${noteText}${paidText}\n`;
                     });
                 }
@@ -348,13 +347,10 @@
             elements.cancelBtn.addEventListener('click', () => toggleEditMode(false));
             elements.saveBtn.addEventListener('click', saveChanges);
 
-            // 【新增】: 複製按鈕的事件監聽
             elements.copyBtn.addEventListener('click', () => {
                 elements.summaryText.select();
                 try {
-                    // 使用 document.execCommand 以提高在 iframe 中的兼容性
                     document.execCommand('copy');
-                    // 提示使用者
                     const originalText = elements.copyBtn.innerHTML;
                     elements.copyBtn.innerHTML = '<i class="bi bi-check-lg"></i> 已複製!';
                     setTimeout(() => {
