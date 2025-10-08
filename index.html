@@ -81,7 +81,6 @@
                                 <th scope="col" style="width: 5%;">#</th>
                                 <th scope="col" style="width: 25%;">姓名</th>
                                 <th scope="col" style="width: 25%;">介紹人</th>
-                                <!-- 【修改】: 欄位名稱縮短 -->
                                 <th scope="col" style="width: 15%;">繳費</th>
                                 <th scope="col" style="width: 30%;">備註</th>
                             </tr>
@@ -92,7 +91,6 @@
                                 <td class="text-center fw-bold">+</td>
                                 <td><input type="text" class="form-control" id="newName" placeholder="您的姓名" required></td>
                                 <td><input type="text" class="form-control" id="newIntroducer" placeholder="介紹人 (可選)"></td>
-                                <!-- 【修改】: 預設顯示空白 -->
                                 <td class="text-center"></td>
                                 <td><input type="text" class="form-control" id="newNote" placeholder="備註 (可選)"></td>
                             </tr>
@@ -103,6 +101,16 @@
                     <button class="btn btn-primary btn-lg" id="submitBtn">我要接龍</button>
                 </div>
             </section>
+
+            <!-- 【新增】: 純文字清單區塊 -->
+            <section id="summarySection" class="mt-5">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h2>純文字接龍清單 (方便複製)</h2>
+                    <button class="btn btn-sm btn-outline-primary" id="copyBtn"><i class="bi bi-clipboard"></i> 複製內容</button>
+                </div>
+                <textarea class="form-control" id="summaryText" rows="10" readonly placeholder="資料載入後將顯示於此..."></textarea>
+            </section>
+
         </main>
         
         <footer class="text-center text-muted mt-4">
@@ -133,7 +141,10 @@
                 saveBtn: document.getElementById('saveBtn'),
                 cancelBtn: document.getElementById('cancelBtn'),
                 addFooter: document.getElementById('addParticipantFooter'),
-                submitWrapper: document.getElementById('submitBtnWrapper')
+                submitWrapper: document.getElementById('submitBtnWrapper'),
+                // 【新增】
+                summaryText: document.getElementById('summaryText'),
+                copyBtn: document.getElementById('copyBtn')
             };
 
             if (!sheetTitle) {
@@ -162,6 +173,7 @@
                 elements.title.textContent = description.split('\n')[0].trim();
                 elements.description.textContent = description;
                 renderTable(participants);
+                renderSummaryText(description, participants); // 【新增】: 呼叫產生純文字的函式
             }
 
             function renderTable(participants) {
@@ -170,7 +182,6 @@
                     const isPaid = p.paid === '已繳費';
                     let rowHtml;
                     if (isEditMode) {
-                        // 編輯模式：顯示開關
                         rowHtml = `
                             <tr>
                                 <th scope="row" class="text-center">${index + 1}</th>
@@ -184,10 +195,7 @@
                                 <td><input type="text" class="edit-mode-input" data-row-index="${p.row_index}" data-field="note" value="${escapeHtml(p.note)}"></td>
                             </tr>`;
                     } else {
-                        // 【修改】: 瀏覽模式：已繳費顯示打勾，未繳費顯示空白
-                        const paidDisplay = isPaid
-                            ? '<i class="bi bi-check-circle-fill text-success paid-icon"></i>'
-                            : '';
+                        const paidDisplay = isPaid ? '<i class="bi bi-check-circle-fill text-success paid-icon"></i>' : '';
                         rowHtml = `
                             <tr class="text-center">
                                 <th scope="row">${index + 1}</th>
@@ -199,6 +207,25 @@
                     }
                     elements.list.innerHTML += rowHtml;
                 });
+            }
+
+            // 【新增】: 產生純文字清單的函式
+            function renderSummaryText(description, participants) {
+                let summary = description + '\n';
+                summary += '--------------------\n';
+                summary += '人員清單：\n';
+
+                if (participants.length === 0) {
+                    summary += '（尚無資料）';
+                } else {
+                    participants.forEach((p, index) => {
+                        const introducerText = p.introducer ? `(${p.introducer})` : '';
+                        const noteText = p.note ? ` [備註: ${p.note}]` : '';
+                        const paidText = p.paid === '已繳費' ? ' (✓已繳費)' : '';
+                        summary += `${index + 1}. ${p.name}${introducerText}${noteText}${paidText}\n`;
+                    });
+                }
+                elements.summaryText.value = summary;
             }
 
             async function submitNewParticipant() {
@@ -220,7 +247,7 @@
                             sheet_title: sheetTitle,
                             name: name,
                             introducer: elements.newIntroducer.value.trim(),
-                            paid: '尚未繳費', // 使用者新增時，後端固定記錄為 '尚未繳費'
+                            paid: '尚未繳費',
                             note: elements.newNote.value.trim()
                         }),
                     });
@@ -320,6 +347,23 @@
             });
             elements.cancelBtn.addEventListener('click', () => toggleEditMode(false));
             elements.saveBtn.addEventListener('click', saveChanges);
+
+            // 【新增】: 複製按鈕的事件監聽
+            elements.copyBtn.addEventListener('click', () => {
+                elements.summaryText.select();
+                try {
+                    // 使用 document.execCommand 以提高在 iframe 中的兼容性
+                    document.execCommand('copy');
+                    // 提示使用者
+                    const originalText = elements.copyBtn.innerHTML;
+                    elements.copyBtn.innerHTML = '<i class="bi bi-check-lg"></i> 已複製!';
+                    setTimeout(() => {
+                        elements.copyBtn.innerHTML = originalText;
+                    }, 2000);
+                } catch (err) {
+                    alert('複製失敗，您的瀏覽器可能不支援此功能。請手動複製。');
+                }
+            });
             
             fetchData();
         });
